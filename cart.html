@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Cart - EdenAura</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="container my-5">
+        <h1 class="mb-4">Your Shopping Cart</h1>
+        <div id="cartItemsContainer" class="mb-4">
+            <!-- Cart items will be dynamically inserted here -->
+        </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4>Total: $<span id="cartTotal">0.00</span></h4>
+        </div>
+        <div class="d-flex gap-3">
+            <a href="products.html" class="btn btn-secondary">Continue Shopping</a>
+            <button id="checkoutBtn" class="btn btn-primary">Proceed to Checkout</button>
+            <button id="clearCartBtn" class="btn btn-danger">Clear Cart</button>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Render cart items on page load
+        $(document).ready(function () {
+            renderCartItems();
+
+            // Checkout button click handler
+            $('#checkoutBtn').on('click', function () {
+                const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+                if (!isLoggedIn) {
+                    alert('Please sign in to proceed to checkout.');
+                    window.location.href = 'signin.html';
+                } else {
+                    window.location.href = 'payment.html';
+                }
+            });
+        });
+    </script>
+    <script>
+        // Load header and footer components dynamically
+        function loadComponent(id, url, callback) {
+            fetch(url)
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById(id).innerHTML = data;
+                    if (callback) callback();
+                })
+                .catch(error => console.error('Error loading component:', error));
+        }
+
+        loadComponent('header-placeholder', 'components/header.html', function() {
+            if (typeof updateCartCount === 'function') {
+                updateCartCount();
+            }
+        });
+        loadComponent('footer-placeholder', 'components/footer.html');
+    </script>
+</body>
+</html>
