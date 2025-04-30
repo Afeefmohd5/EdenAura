@@ -304,6 +304,62 @@
     </div>
     <!-- Cart Modal End -->
 
+    <!-- User Authentication Modal Start -->
+    <div class="modal fade" id="userAuthModal" tabindex="-1" aria-labelledby="userAuthModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userAuthModalLabel">Sign In</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="loginFormContainer">
+            <form id="signInForm">
+                <div class="mb-3">
+                  <label for="signInEmailOrContact" class="form-label">Email or Contact Number</label>
+                  <input type="text" class="form-control" id="signInEmailOrContact" required>
+                </div>
+                <div class="mb-3">
+                  <label for="signInPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="signInPassword" required>
+                </div>
+                <div id="signInError" class="text-danger mb-3" style="display:none;">Invalid email or password.</div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+              </form>
+              <div class="mt-3 text-center">
+                <span>New user? <a href="#" id="showSignUpForm">Create account</a></span>
+              </div>
+            </div>
+            <div id="signUpFormContainer" style="display:none;">
+              <form id="signUpForm">
+                <div class="mb-3">
+                  <label for="signUpUsername" class="form-label">Username</label>
+                  <input type="text" class="form-control" id="signUpUsername" required>
+                </div>
+                <div class="mb-3">
+                  <label for="signUpEmail" class="form-label">Email address</label>
+                  <input type="email" class="form-control" id="signUpEmail" required>
+                </div>
+                <div class="mb-3">
+                  <label for="signUpPassword" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="signUpPassword" required>
+                </div>
+                <div class="mb-3">
+                  <label for="signUpConfirmPassword" class="form-label">Confirm Password</label>
+                  <input type="password" class="form-control" id="signUpConfirmPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Create Account</button>
+              </form>
+              <div class="mt-3 text-center">
+                <span>Already have an account? <a href="#" id="showSignInForm">Sign in</a></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- User Authentication Modal End -->
+
     <!-- Template Javascript -->
     <script src="js/main.js"></script>
 </body>

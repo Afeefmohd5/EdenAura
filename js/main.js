@@ -10,8 +10,8 @@
         }, 1);
     };
     spinner();
-    
-    
+
+
     // Initiate the wowjs
     new WOW().init();
 
@@ -24,8 +24,8 @@
             $('.sticky-top').removeClass('shadow-sm').css('top', '-100px');
         }
     });
-    
-    
+
+
     // Back to top button
     $(window).scroll(function () {
         if ($(this).scrollTop() > 300) {
@@ -35,7 +35,7 @@
         }
     });
     $('.back-to-top').click(function () {
-        $('html, body').animate({scrollTop: 0}, 1500, 'easeInOutExpo');
+        $('html, body').animate({ scrollTop: 0 }, 1500, 'easeInOutExpo');
         return false;
     });
 
@@ -56,7 +56,7 @@
         $("#portfolio-flters li").removeClass('active');
         $(this).addClass('active');
 
-        portfolioIsotope.isotope({filter: $(this).data('filter')});
+        portfolioIsotope.isotope({ filter: $(this).data('filter') });
     });
 
 
@@ -68,7 +68,7 @@
         dots: false,
         loop: true,
         nav: true,
-        navText : [
+        navText: [
             '<i class="bi bi-chevron-left"></i>',
             '<i class="bi bi-chevron-right"></i>'
         ]
@@ -103,22 +103,43 @@
             return;
         }
 
+        let tableHtml = `
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
         cart.forEach(item => {
             const price = parseFloat(item.price.replace('$', ''));
             const quantity = item.quantity || 1;
-            total += price * quantity;
-            const itemHtml = `
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <div>
-                        <h6>${item.name}</h6>
-                        <small>${item.price} x ${quantity} = $${(price * quantity).toFixed(2)}</small>
-                    </div>
-                    <button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">Remove</button>
-                </div>
+            const subtotal = price * quantity;
+            total += subtotal;
+
+            tableHtml += `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.price}</td>
+                    <td>${quantity}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                    <td><button class="btn btn-danger btn-sm remove-from-cart" data-id="${item.id}">Remove</button></td>
+                </tr>
             `;
-            container.append(itemHtml);
         });
 
+        tableHtml += `
+                </tbody>
+            </table>
+        `;
+
+        container.html(tableHtml);
         $('#cartTotal').text(total.toFixed(2));
     }
 
@@ -144,18 +165,22 @@
     }
 
     // Event delegation for dynamically created buttons
-    $(document).on('click', '.btn-success', function() {
+    $(document).on('click', '.btn-success', function () {
         const productCard = $(this).closest('.product-card');
         const name = productCard.find('.product-name').text();
         const price = productCard.find('.text-muted').text();
-        const id = parseInt(productCard.parent().index()) + 1; // Assuming order matches product id
+        // Use data attribute for id if available, else fallback to index
+        let id = productCard.data('id');
+        if (!id) {
+            id = parseInt(productCard.parent().index()) + 1; // Assuming order matches product id
+        }
         const quantity = parseInt(productCard.find('.quantity-input').val()) || 1;
 
         addToCart({ id, name, price, quantity });
     });
 
     // Remove from cart button
-    $(document).on('click', '.remove-from-cart', function() {
+    $(document).on('click', '.remove-from-cart', function () {
         const id = parseInt($(this).data('id'));
         removeFromCart(id);
     });
@@ -166,7 +191,7 @@
     });
 
     // Checkout button click handler
-    $('#checkoutBtn').on('click', function() {
+    $('#checkoutBtn').on('click', function () {
         const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
         if (!isLoggedIn) {
             // Show login first modal
@@ -179,19 +204,33 @@
         }
     });
 
+    // Clear cart button click handler
+    $('#clearCartBtn').on('click', function () {
+        localStorage.removeItem('cart');
+        updateCartCount();
+        renderCartItems();
+    });
+
     // Ensure login form is shown by default when userAuthModal is opened
-    $('#userAuthModal').on('show.bs.modal', function() {
+    $('#userAuthModal').on('show.bs.modal', function () {
         $('#loginFormContainer').show();
         $('#signUpFormContainer').hide();
         $('#userAuthModalLabel').text('Sign In');
     });
 
     // Initialize cart count on page load
-    $(document).ready(function() {
-        updateCartCount();
+    $(document).ready(function () {
+        // Clear cart and reset count if user not logged in
+        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        if (!isLoggedIn) {
+            localStorage.removeItem('cart');
+            $('#cart-count').text('0');
+        } else {
+            updateCartCount();
+        }
 
         // Toggle to show signup form
-        $('#showSignUpForm').click(function(e) {
+        $('#showSignUpForm').click(function (e) {
             e.preventDefault();
             $('#loginFormContainer').hide();
             $('#signUpFormContainer').show();
@@ -199,7 +238,7 @@
         });
 
         // Toggle to show signin form
-        $('#showSignInForm').click(function(e) {
+        $('#showSignInForm').click(function (e) {
             e.preventDefault();
             $('#signUpFormContainer').hide();
             $('#loginFormContainer').show();
@@ -207,7 +246,7 @@
         });
 
         // Handle signup form submission
-        $('#signUpForm').submit(function(e) {
+        $('#signUpForm').submit(function (e) {
             e.preventDefault();
 
             const username = $('#signUpUsername').val().trim();
@@ -233,28 +272,28 @@
                 },
                 body: JSON.stringify(userData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to create account.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Assuming API returns success status
-                $('#userAuthModal').modal('hide');
-                $('#signUpForm')[0].reset();
-                $('#signUpFormContainer').hide();
-                $('#loginFormContainer').show();
-                $('#userAuthModalLabel').text('Sign In');
-                $('#successPopupModal').modal('show');
-            })
-            .catch(error => {
-                alert(error.message);
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to create account.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Assuming API returns success status
+                    $('#userAuthModal').modal('hide');
+                    $('#signUpForm')[0].reset();
+                    $('#signUpFormContainer').hide();
+                    $('#loginFormContainer').show();
+                    $('#userAuthModalLabel').text('Sign In');
+                    $('#successPopupModal').modal('show');
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
         });
 
         // Handle signin form submission (simulate login)
-        $('#signInForm').submit(function(e) {
+        $('#signInForm').submit(function (e) {
             e.preventDefault();
             // Simulate successful login
             localStorage.setItem('isLoggedIn', 'true');
@@ -263,30 +302,24 @@
         });
 
         // Close success popup modal
-        $('#successPopupCloseBtn').click(function() {
+        $('#successPopupCloseBtn').click(function () {
             $('#successPopupModal').modal('hide');
         });
     });
 
 })(jQuery);
+const menuItems = document.querySelectorAll('.nav-link');
+const currentPath = window.location.pathname.split("/").pop(); // get the current page like 'about.html'
 
-
-
-
-
-  const menuItems = document.querySelectorAll('.nav-link');
-  const currentPath = window.location.pathname.split("/").pop(); // get the current page like 'about.html'
-
-  menuItems.forEach(link => {
+menuItems.forEach(link => {
     // First, remove any old 'active' classes
     link.classList.remove('active');
 
     // Now add 'active' if href matches the current page
     if (link.getAttribute('href') === currentPath) {
-      link.classList.add('active');
+        link.classList.add('active');
     }
-  });
-
+});
 
 
 
